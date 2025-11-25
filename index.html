@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Employee Portal</title>
+    <meta name="theme-color" content="#4a6da7">
+    <meta name="description" content="Employee Portal for attendance and salary management">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/dental_lab.png">
+    <link rel="stylesheet" href="style.css" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Employee Portal">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/dental_lab.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/dental_lab.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/dental_lab.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <!-- LOGIN PAGE -->
+        <div id="login-page" class="page active">
+            <div class="header">
+                <h1>Employee Portal</h1>
+            </div>
+
+            <div class="card">
+                <h2>Login</h2>
+                <p class="login-description">Enter your Employee ID to Login</p>
+
+                <div class="form-group">
+                    <input type="text" id="employee-id"  maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Enter your Employee ID" />
+                    <div id="employee-id-error" class="error">Please enter a valid employee ID</div>
+                </div>
+
+                <div id="toast" class="toast">
+                    <p id="otp-message" style="display:none; color:green; font-weight:500; margin-top:5px;"></p>
+
+                </div>
+
+                <button id="send-otp-btn">Send OTP</button>
+                <div id="otp-section" class="otp-section">
+
+                    <div class="form-group">
+                        <label for="otp">Enter OTP</label>
+                        <input type="text" id="otp" placeholder="Enter OTP sent to your phone" />
+                        <div id="otp-error" class="error">Please enter a valid OTP</div>
+                    </div>
+                    <button id="verify-otp-btn">Verify OTP</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU PAGE (Shown after login) -->
+        <div id="menu-page" class="page">
+            <div class="header">
+                <button id="menu-toggle" class="menu-toggle" aria-label="Open menu">☰</button>
+
+                <h1>Employee Portal</h1>
+                <!-- <button id="top-logout-btn" class="logout-btn">Logout</button> -->
+            </div>
+
+            <!-- Sidebar (hidden until login) -->
+            <aside id="sidebar" class="sidebar" aria-hidden="true">
+                <div class="profile-info">
+                    <h3 id="sidebar-employee-name">Employee</h3>
+                    <p id="sidebar-employee-id">ID: -</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Main menu">
+                    <a id="menu-home" href="javascript:void(0)">🏠 Home</a>
+                    <a id="menu-profile" href="javascript:void(0)">👤 Profile</a>
+                    <a id="menu-attendance" href="javascript:void(0)">🗓 Attendance</a>
+                    <a id="menu-salary" href="javascript:void(0)">💰 Salary Slip</a>
+                </nav>
+              
+
+                <div style="flex:1"></div>
+                <div style="padding:16px">
+                    <button id="menu-logout" class="sidebar-logout">Logout</button>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+            <!-- Main content (profile shown by default) -->
+            <main id="menu-content" style="margin:20px;">
+                <!-- HOME PAGE -->
+                <div id="home-page" class="card">
+                    <h2>Welcome, <span id="home-employee-name">Employee</span> 👋</h2>
+                    <p>Glad to have you on the Employee Portal.</p>
+                </div>
+
+                <!-- PROFILE PAGE -->
+                <!-- PROFILE PAGE -->
+                <div id="profile-page" class="card" style="display:none;">
+                    <h2>My Profile</h2>
+                    <div class="profile-container">
+                        <img id="profile-pic" src="icons/LDL_logo.png" alt="Profile Picture" class="profile-pic">
+                        <div class="profile-details">
+                            <p><strong>Employee ID: </strong> <span id="employee-id-display">-</span></p>
+                            <p><strong>Employee Name: </strong> <span id="employee-name">Employee</span></p>
+                            <p><strong>Mobile No. </strong> <span id="employee-phone">N/A</span></p>
+                            <p><strong>Email ID: </strong> <span id="employee-email">N/A</span></p>
+ 
+                            <!-- 🔽 More Details Toggle -->
+                        <button id="toggle-more-details" class="secondary" style="margin-top:10px;">▼ More
+                            Details</button>
+                           
+                            <div id="more-details" class="more-details">
+                            <p><strong>Shift:</strong> <span id="employee-shift">-</span></p>
+                            <p><strong>Process:</strong> <span id="employee-process">-</span></p>
+                            <p><strong>Department:</strong> <span id="employee-department">-</span></p>
+                            <p><strong>Reporting Manager:</strong> <span id="employee-reporting-manager">-</span></p>
+                            <p><strong>Location:</strong> <span id="employee-location">-</span></p>
+                            <p><strong>HR Manager:</strong> <span id="employee-hr-manager">-</span></p>
+                            <p><strong>HR Contact:</strong> <span id="employee-hr-contact">-</span></p>
+                            <p><strong>HR Email:</strong> <span id="employee-hr-email">-</span></p>
+                            <p><strong>Employee Type:</strong> <span id="employee-type">-</span></p>
+                            <p><strong>Emergency Contact:</strong> <span id="employee-emergency">-</span></p>
+                            <p><strong>Blood Group:</strong> <span id="employee-blood-group">-</span></p>
+                            <p><strong>Address:</strong> <span id="employee-address">-</span></p>
+                        </div>
+                        </div>
+ 
+                       
+ 
+                       
+                    </div>
+                </div>
+            </main>
+
+        </div>
+
+        <!-- ATTENDANCE PAGE -->
+        <div id="attendance-page" class="page">
+            <div class="header">
+                <h1>Attendance</h1>
+                <button class="logout-btn" id="attendance-logout-btn">Logout</button>
+            </div>
+
+            <div class="card">
+                <button class="back-btn secondary" id="attendance-back-btn">← Back</button>
+
+                <div class="calendar-header">
+                    <button id="prev-month-btn">←</button>
+                    <h2 id="current-month"></h2>
+                    <button id="next-month-btn">→</button>
+                </div>
+
+                <div id="calendar-legend" style="display: flex; gap: 5px; padding-bottom: 0.2rem; font-size: 0.7rem;">
+                    <span style="background-color: #a5d6a7; padding: 3px 6px; border-radius: 6px;"><strong>P</strong>Present</span>
+                    <span style="background-color: #ef9a9a; padding: 3px 6px; border-radius: 6px;"><strong>A</strong>Absent</span>
+                    <span style="background-color: #fff59d; padding: 3px 6px; border-radius: 6px;"><strong>H</strong>Holiday</span>
+                    <span style="background-color: #f0f0f0; padding: 3px 6px; border-radius: 6px;"><strong>W</strong>Weekend</span>
+                </div>
+
+                <div class="calendar-wrapper">
+                    <table class="calendar">
+                        <thead>
+                            <tr>
+                                <th>Sun</th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th>Sat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calendar-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Attendance Popup -->
+        <div id="attendance-popup" class="attendance-popup">
+            <div class="attendance-popup-content">
+                <span id="popup-close">&times;</span>
+                <h3>Attendance Details</h3>
+                <p><strong>In Time:</strong> <span id="popup-intime">-</span></p>
+                <p><strong>Out Time:</strong> <span id="popup-outtime">-</span></p>
+            </div>
+        </div>
+
+
+        <!-- Loader -->
+        <div id="attendance-loader" class="loader-overlay" style="display:none;">
+            <div class="spinner"></div>
+            <p>Loading attendance...</p>
+        </div>
+
+        <!-- SALARY PAGE -->
+        <div id="salary-page" class="page">
+            <div class="header">
+                <h1>Salary Slips</h1>
+                <button class="logout-btn" id="salary-logout-btn">Logout</button>
+            </div>
+
+            <div class="card">
+                <button class="back-btn secondary" id="salary-back-btn">← Back</button>
+                <p class="salary-description">Download your salary slip here.</p>
+                <div class="month-list" id="month-list"></div>
+                <div id="salary-slip" class="salary-slip"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS (auth first so login UI works) -->
+    <script src="auth.js"></script>
+    <script src="attendance.js"></script>
+    <script src="salary.js"></script>
+    <script src="app.js"></script>
+    <script src="tour.js"></script>
+
+    <button id="installAppBtn" style="
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      z-index: 10002;
+      background-color: #4a6da7;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      display: none;
+    ">
+        ⬇️ Install App
+    </button>
+    
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker
+                .register("service-worker.js")
+                .then(() => console.log("✅ Service Worker Registered"))
+                .catch(err => console.error("SW registration failed:", err));
+        }
+
+        let deferredPrompt;
+        const installBtn = document.getElementById("installAppBtn");
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = "block";
+        });
+
+        installBtn.addEventListener("click", async () => {
+            installBtn.style.display = "none";
+            deferredPrompt.prompt();
+            const choiceResult = await deferredPrompt.userChoice;
+            if (choiceResult.outcome === "accepted") {
+                console.log("✅ User accepted the install prompt");
+            } else {
+                console.log("❌ User dismissed the install prompt");
+            }
+            deferredPrompt = null;
+        });
+    </script>
+    
+
+    <script>
+document.getElementById("toggle-more-details").addEventListener("click", function () {
+    const box = document.getElementById("more-details");
+
+    box.classList.toggle("show");
+
+    // Change button text & arrow
+    if (box.classList.contains("show")) {
+        this.innerHTML = "▲ Hide Details";
+    } else {
+        this.innerHTML = "▼ More Details";
+    }
+});
+</script>
+</body>
+
+</html>

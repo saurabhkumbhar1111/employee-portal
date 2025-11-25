@@ -1,0 +1,22 @@
+{
+  "name": "employee-portal",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --minify --outfile=dist/bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.25.11"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2"
+  },
+  "description": ""
+}
