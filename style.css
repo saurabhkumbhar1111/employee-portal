@@ -378,12 +378,13 @@ body.sidebar-open .menu-toggle{
   background: #f8faff;
   border-radius: 8px;
   margin-top: 15px;
-  padding: 0;
+  padding: 0 20px;
   overflow: hidden;
   max-height: 0;
   opacity: 0;
   transform: translateY(-5px);
   transition: all 0.4s ease;
+  max-height: 0;
 }
  
 .more-details.show {
@@ -442,5 +443,156 @@ body.sidebar-open .menu-toggle{
     height: 95px;
   }
 }
+
+/* ---------- GENERAL CARD LOOK ---------- */
+#profile-page {
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    margin: 12px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- HEADER ---------- */
+#profile-page h2 {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* ---------- PROFILE PIC ---------- */
+.profile-pic {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: auto;
+    display: block;
+    border: 3px solid #007AFF;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ---------- SECTIONS ---------- */
+.section {
+    background: #f9f9f9;
+    padding: 14px;
+    border-radius: 12px;
+    margin-top: 14px;
+    border: 1px solid #eee;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.03);
+}
+
+/* ---------- SECTION TITLE ---------- */
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #007AFF;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    padding-bottom: 6px;
+}
+
+/* Add arrow icons */
+.section-title::after {
+    content: "▼";
+    font-size: 14px;
+    color: #007AFF;
+    transition: 0.3s;
+}
+
+/* Rotated arrow when active */
+.section.active .section-title::after {
+    transform: rotate(-180deg);
+}
+
+/* ---------- COLLAPSIBLE CONTENT ---------- */
+.more-details {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+    animation: slideDown 0.3s ease-in-out;
+}
+
+/* Slide down animation */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* When expanded */
+.section.active .more-details {
+    display: block;
+}
+
+/* ---------- FIELD TEXT ---------- */
+.section p, 
+.section .field {
+    margin: 6px 0;
+    color: #444;
+    font-size: 14px;
+}
+
+/* Bold Labels */
+.section strong {
+    color: #111;
+    font-weight: 600;
+}
+
+.profile-actions {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.profile-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.ack-row {
+    margin-bottom: 20px;
+}
+
+.ack-text {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: black;
+}
+
+.btn-ack,
+.btn-ack-wrong {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* GREEN */
+.btn-ack {
+    background-color: #28a745;
+    color: white;
+}
+
+/* YELLOW */
+.btn-ack-wrong {
+    background-color: #ffc107;
+    color: black;
+}
+
 
 

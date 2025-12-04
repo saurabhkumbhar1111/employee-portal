@@ -33,7 +33,8 @@
                 <p class="login-description">Enter your Employee ID to Login</p>
 
                 <div class="form-group">
-                    <input type="text" id="employee-id"  maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Enter your Employee ID" />
+                    <input type="text" id="employee-id" maxlength="8"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Enter your Employee ID" />
                     <div id="employee-id-error" class="error">Please enter a valid employee ID</div>
                 </div>
 
@@ -47,7 +48,8 @@
 
                     <div class="form-group">
                         <label for="otp">Enter OTP</label>
-                        <input type="text" id="otp" placeholder="Enter OTP sent to your phone" />
+                        <input type="text" id="otp" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                         placeholder="Enter OTP sent to your phone" />
                         <div id="otp-error" class="error">Please enter a valid OTP</div>
                     </div>
                     <button id="verify-otp-btn">Verify OTP</button>
@@ -77,7 +79,7 @@
                     <a id="menu-attendance" href="javascript:void(0)">🗓 Attendance</a>
                     <a id="menu-salary" href="javascript:void(0)">💰 Salary Slip</a>
                 </nav>
-              
+
 
                 <div style="flex:1"></div>
                 <div style="padding:16px">
@@ -97,42 +99,116 @@
                 </div>
 
                 <!-- PROFILE PAGE -->
-                <!-- PROFILE PAGE -->
-                <div id="profile-page" class="card" style="display:none;">
+                <div class="card" id="profile-page" style="display:none;">
                     <h2>My Profile</h2>
-                    <div class="profile-container">
-                        <img id="profile-pic" src="icons/LDL_logo.png" alt="Profile Picture" class="profile-pic">
-                        <div class="profile-details">
-                            <p><strong>Employee ID: </strong> <span id="employee-id-display">-</span></p>
-                            <p><strong>Employee Name: </strong> <span id="employee-name">Employee</span></p>
-                            <p><strong>Mobile No. </strong> <span id="employee-phone">N/A</span></p>
-                            <p><strong>Email ID: </strong> <span id="employee-email">N/A</span></p>
- 
-                            <!-- 🔽 More Details Toggle -->
-                        <button id="toggle-more-details" class="secondary" style="margin-top:10px;">▼ More
-                            Details</button>
-                           
-                            <div id="more-details" class="more-details">
-                            <p><strong>Shift:</strong> <span id="employee-shift">-</span></p>
-                            <p><strong>Process:</strong> <span id="employee-process">-</span></p>
-                            <p><strong>Department:</strong> <span id="employee-department">-</span></p>
-                            <p><strong>Reporting Manager:</strong> <span id="employee-reporting-manager">-</span></p>
-                            <p><strong>Location:</strong> <span id="employee-location">-</span></p>
-                            <p><strong>HR Manager:</strong> <span id="employee-hr-manager">-</span></p>
-                            <p><strong>HR Contact:</strong> <span id="employee-hr-contact">-</span></p>
-                            <p><strong>HR Email:</strong> <span id="employee-hr-email">-</span></p>
-                            <p><strong>Employee Type:</strong> <span id="employee-type">-</span></p>
-                            <p><strong>Emergency Contact:</strong> <span id="employee-emergency">-</span></p>
-                            <p><strong>Blood Group:</strong> <span id="employee-blood-group">-</span></p>
-                            <p><strong>Address:</strong> <span id="employee-address">-</span></p>
-                        </div>
-                        </div>
- 
-                       
- 
-                       
+                    <!-- PROFILE PHOTO -->
+                    <img id="profile-pic" src="icons/LDL_logo.png" alt="Profile Picture" class="profile-pic">
+
+                    <!-- Employee Basic Info -->
+                    <div class="section">
+                        <div class="field"><strong>Employee Code: </strong> <span id="employee-id-display"></span></div>
+                        <div class="field"><strong>Employee Name: </strong> <span id="employee-full-name"></span></div>
+                        <p><strong>Official Mobile No:</strong> <span id="employee-work-mobile"></span></p>
+                        <div class="field"><strong>Official Email ID: </strong> <span id="employee-email"></span></div>
                     </div>
+
+                    <!-- Personal Information -->
+                    <div class="section">
+                        <div class="section-title">👤 Personal Information</div>
+                        <div class="more-details">
+                            <p><strong>First Name:</strong> <span id="employee-first-name"></span></p>
+                            <p><strong>Middle Name:</strong> <span id="employee-middle-name"></span></p>
+                            <p><strong>Last Name:</strong> <span id="employee-last-name"></span></p>
+                            <p><strong>Date of Birth:</strong> <span id="employee-dob"></span></p>
+                            <p><strong>Gender:</strong> <span id="employee-gender"></span></p>
+                            <p><strong>Religion:</strong> <span id="employee-religion"></span></p>
+                            <p><strong>Marital Status:</strong> <span id="employee-marital-status"></span></p>
+                            <p><strong>Blood Group:</strong> <span id="employee-blood-group"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div class="section">
+                        <div class="section-title">📞 Contact Details</div>
+                        <div class="more-details">                            
+                        <div class="field"><strong> Personal Mobile No: </strong> <span id="employee-phone"></span></div>
+                            <p><strong>Personal Email ID:</strong> <span id="employee-personal-email"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Address Details -->
+                    <div class="section">
+                        <div class="section-title">🏠 Address</div>
+                        <div class="more-details">
+                            <p><strong>Present Address:</strong> <span id="employee-present-address"></span></p>
+            <p><strong>City/State/Pin:</strong> 
+                <span id="employee-present-city"></span> / 
+                <span id="employee-present-state"></span> / 
+                <span id="employee-present-pincode"></span>
+            </p>
+ 
+            <p><strong>Permanent Address:</strong> <span id="employee-permanent-address"></span></p>
+            <p><strong>City/State/Pin:</strong> 
+                <span id="employee-permanent-city"></span> / 
+                <span id="employee-permanent-state"></span> / 
+                <span id="employee-permanent-pincode"></span>
+            </p>
+                        </div>
+                    </div>
+
+                    <!-- Work Information -->
+                    <div class="section">
+                        <div class="section-title">🏢 Work Information</div>
+                        <div class="more-details">
+                            <p><strong>Department:</strong> <span id="employee-department"></span></p>
+                            <p><strong>Designation:</strong> <span id="employee-designation"></span></p>
+                            <p><strong>Reporting Manager:</strong> <span id="employee-reporting-manager"></span></p>
+                            <!-- joining bramch -->
+                            <p><strong>Joining Branch:</strong> <span id="employee-branch"></span></p>
+                            <p><strong>Work Location:</strong> <span id="employee-location"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Government Details -->
+                    <div class="section">
+                        <div class="section-title">📝 Government Details</div>
+                        <div class="more-details">
+                            <p><strong>PAN No:</strong> <span id="employee-pan"></span></p>
+                            <p><strong>UAN No:</strong> <span id="employee-uan"></span></p>
+                            <p><strong>Aadhar Card No:</strong> <span id="employee-aadhar"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Medical History -->
+                    <div class="section">
+                        <div class="section-title">❤️ Medical History</div>
+                        <div class="more-details">
+                            <p><span id="employee-medical-history"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="profile-actions">
+
+                        <label class="profile-label">Is the above information correct?</label>
+
+                        <div class="ack-row">
+                            
+                            <button class="btn-ack" onclick="submitAcknowledgement('Acknowledged & All Correct')">
+                                  <span class="ack-text">✔ Acknowledged & All Correct</span>
+                            </button>
+                        </div>
+
+                        <div class="ack-row">
+                            
+                            <button class="btn-ack-wrong" onclick="submitAcknowledgement('Acknowledged but Changes Required')">
+                                <span class="ack-text">⚠ Acknowledged but Changes Required</span>
+                            </button>
+                        </div>
+
+                     </div>
                 </div>
+
             </main>
 
         </div>
@@ -154,10 +230,14 @@
                 </div>
 
                 <div id="calendar-legend" style="display: flex; gap: 5px; padding-bottom: 0.2rem; font-size: 0.7rem;">
-                    <span style="background-color: #a5d6a7; padding: 3px 6px; border-radius: 6px;"><strong>P</strong>Present</span>
-                    <span style="background-color: #ef9a9a; padding: 3px 6px; border-radius: 6px;"><strong>A</strong>Absent</span>
-                    <span style="background-color: #fff59d; padding: 3px 6px; border-radius: 6px;"><strong>H</strong>Holiday</span>
-                    <span style="background-color: #f0f0f0; padding: 3px 6px; border-radius: 6px;"><strong>W</strong>Weekend</span>
+                    <span
+                        style="background-color: #a5d6a7; padding: 3px 6px; border-radius: 6px;"><strong>P</strong>Present</span>
+                    <span
+                        style="background-color: #ef9a9a; padding: 3px 6px; border-radius: 6px;"><strong>A</strong>Absent</span>
+                    <span
+                        style="background-color: #fff59d; padding: 3px 6px; border-radius: 6px;"><strong>H</strong>Holiday</span>
+                    <span
+                        style="background-color: #f0f0f0; padding: 3px 6px; border-radius: 6px;"><strong>W</strong>Weekend</span>
                 </div>
 
                 <div class="calendar-wrapper">
@@ -217,6 +297,7 @@
     <script src="salary.js"></script>
     <script src="app.js"></script>
     <script src="tour.js"></script>
+    <script src="config.js"></script>
 
     <button id="installAppBtn" style="
       position: fixed;
@@ -239,9 +320,9 @@
     <script>
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker
-                .register("service-worker.js")
-                .then(() => console.log("✅ Service Worker Registered"))
-                .catch(err => console.error("SW registration failed:", err));
+                .register("service-worker.js");
+                // .then(() => console.log("✅ Service Worker Registered"))
+                // .catch(err => console.error("SW registration failed:", err));
         }
 
         let deferredPrompt;
@@ -257,30 +338,56 @@
             installBtn.style.display = "none";
             deferredPrompt.prompt();
             const choiceResult = await deferredPrompt.userChoice;
-            if (choiceResult.outcome === "accepted") {
-                console.log("✅ User accepted the install prompt");
-            } else {
-                console.log("❌ User dismissed the install prompt");
-            }
+            // if (choiceResult.outcome === "accepted") {
+            //     console.log("✅ User accepted the install prompt");
+            // } else {
+            //     console.log("❌ User dismissed the install prompt");
+            // }
             deferredPrompt = null;
         });
     </script>
-    
+
+
+    <!-- <script>
+        document.getElementById("toggle-more-details").addEventListener("click", function () {
+            const box = document.getElementById("more-details");
+
+            box.classList.toggle("show");
+
+            // Change button text & arrow
+            if (box.classList.contains("show")) {
+                this.innerHTML = "▲ Hide Details";
+            } else {
+                this.innerHTML = "▼ More Details";
+            }
+        });
+    </script> -->
 
     <script>
-document.getElementById("toggle-more-details").addEventListener("click", function () {
-    const box = document.getElementById("more-details");
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.section-title').forEach(function (title) {
+                const details = title.nextElementSibling;
 
-    box.classList.toggle("show");
+                // ensure collapsed initially
+                details.classList.remove('show');
 
-    // Change button text & arrow
-    if (box.classList.contains("show")) {
-        this.innerHTML = "▲ Hide Details";
-    } else {
-        this.innerHTML = "▼ More Details";
-    }
-});
-</script>
+                title.addEventListener('click', function () {
+                    details.classList.toggle('show');
+                });
+            });
+        });
+
+    </script>
+    <script>
+        document.querySelectorAll('.section').forEach(section => {
+            const title = section.querySelector('.section-title');
+            if (title) {
+                title.addEventListener('click', () => {
+                    section.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
