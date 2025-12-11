@@ -34,6 +34,7 @@ class EmployeePortal {
     this.profileEmergencyContactElem = document.getElementById('employee-emergency-contact');
     this.profileBloodGroupElem = document.getElementById('employee-blood-group');
     this.profileAddressElem = document.getElementById('employee-address');
+    this.profileFatherNameElem = document.getElementById('employee-father-name');
     // NEW FIELDS
     this.profileFirstNameElem = document.getElementById('employee-first-name');
     this.profileMiddleNameElem = document.getElementById('employee-middle-name');
@@ -154,6 +155,7 @@ class EmployeePortal {
     const employeeFirstName = localStorage.getItem('employeeFirstName') || 'N/A';
     const employeeMiddleName = localStorage.getItem('employeeMiddleName') || 'N/A';
     const employeeLastName = localStorage.getItem('employeeLastName') || 'N/A';
+    const employeeFatherName = localStorage.getItem('employeeFatherName') || 'N/A';
 
     // PERSONAL DETAILS
     const employeeDOB = localStorage.getItem('employeeDOB') || 'N/A';
@@ -205,6 +207,7 @@ class EmployeePortal {
     if (this.profileFirstNameElem) this.profileFirstNameElem.textContent = employeeFirstName;
     if (this.profileMiddleNameElem) this.profileMiddleNameElem.textContent = employeeMiddleName;
     if (this.profileLastNameElem) this.profileLastNameElem.textContent = employeeLastName;
+    if (this.profileFatherNameElem) this.profileFatherNameElem.textContent = employeeFatherName;  
     if (this.profilePresentCityElem) this.profilePresentCityElem.textContent = employeePresentCity;
     if (this.profilePresentStateElem) this.profilePresentStateElem.textContent = employeePresentState;
     if (this.profilePresentPinCodeElem) this.profilePresentPinCodeElem.textContent = employeePresentPin;

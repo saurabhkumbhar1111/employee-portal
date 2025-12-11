@@ -14,6 +14,46 @@ function decryptPayload(encrypted) {
   });
   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 }
+
+async function getFcmToken() {
+    try {
+        if (!('serviceWorker' in navigator)) throw new Error("Service Workers not supported");
+
+        const registration = await navigator.serviceWorker.register('sw.js');
+
+        // Wait until SW is active
+        if (registration.installing) {
+            await new Promise(res => registration.installing.addEventListener('statechange', e => {
+                if (e.target.state === 'activated') res();
+            }));
+        } else if (registration.waiting) {
+            await new Promise(res => registration.waiting.addEventListener('statechange', e => {
+                if (e.target.state === 'activated') res();
+            }));
+        }
+
+        const messaging = firebase.messaging();
+
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+            // console.warn("Notifications permission denied");
+            return null;
+        }
+
+        const token = await messaging.getToken({
+            vapidKey: "BLXIFrzowad4LYjYFWv8_JEnyGYPcQ7bXNvt6_Szy7HK8o22gcHOVbkvrr99qCIxpx9ijIQyZcS68GUBT0DlrCY",
+            serviceWorkerRegistration: registration
+        });
+
+        // console.log("FCM Token Generated:", token);
+        return token;
+
+    } catch (err) {
+        // console.error("FCM Token Error:", err);
+        return null;
+    }
+}
+
 class AuthManager {
     constructor() {
         this.generatedOtp = null;
@@ -23,6 +63,18 @@ class AuthManager {
         if (this.otpSection) this.otpSection.style.display = "none";
 
         this.bindEvents();
+
+	const savedId = localStorage.getItem("employeeId");
+        const savedLogin = localStorage.getItem("isLoggedIn");
+
+        if (savedId && savedLogin === "true") {
+            this.employeeId = savedId;
+
+            if (window.employeePortal && typeof window.employeePortal.loadEmployeeDetails === "function") {
+                window.employeePortal.loadEmployeeDetails();
+                window.employeePortal.showPage("menu");
+            }
+        }
     }
 
     bindEvents() {
@@ -102,6 +154,7 @@ class AuthManager {
         const FirstName = employee.FirstName || "N/A";
         const MiddleName = employee.MiddleName || "N/A";
         const LastName = employee.LastName || "N/A";
+        const FatherName = employee.FatherName || "N/A";
 
         const DateOfBirth = employee.DateOfBirth || "N/A";
         const Religion = employee.Religion || "N/A";
@@ -144,6 +197,7 @@ class AuthManager {
         this.employeeFirstName = FirstName;
         this.employeeMiddleName = MiddleName;
         this.employeeLastName = LastName;
+	this.employeeFatherName = FatherName;
         this.employeeDOB = DateOfBirth;
         this.employeeReligion = Religion;
         this.employeeGender = Gender;
@@ -217,6 +271,7 @@ class AuthManager {
                 localStorage.setItem("employeeFirstName", this.employeeFirstName);
                 localStorage.setItem("employeeMiddleName", this.employeeMiddleName);
                 localStorage.setItem("employeeLastName", this.employeeLastName);
+	        localStorage.setItem("employeeFatherName", this.employeeFatherName);
 
                 localStorage.setItem("employeeDOB", this.employeeDOB);
                 localStorage.setItem("employeeReligion", this.employeeReligion);
@@ -250,6 +305,25 @@ class AuthManager {
                 localStorage.setItem("employeeAadhar", this.employeeAadhar);
 
                 localStorage.setItem("employeeMedicalHistory", this.employeeMedicalHistory);
+		localStorage.setItem("isLoggedIn", "true");
+
+	// Generate Firebase Push Notification Token
+            getFcmToken().then(async (token) => {
+
+                const API_URL = window.APP_CONFIG.API_BASE_URL;
+
+                // Call PostLoginActivity ONLY if OTP is correct
+                await fetch(`${API_URL}/api/ZohoPeople/PostLoginActivity`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        EmpID: this.employeeId,
+                        LoginStatus: "Login",
+                        Token: token || null
+                    })
+                });
+
+            });
 
 
 
@@ -272,6 +346,20 @@ class AuthManager {
     }
 
     logout() {
+
+	const employeeId = localStorage.getItem("employeeId");
+
+        const API_URL = window.APP_CONFIG.API_BASE_URL;
+
+        //  Call logout API
+        fetch(`${API_URL}/api/ZohoPeople/PostLoginActivity`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                EmpID: employeeId,
+                LoginStatus: "Logout"
+            })
+        });
         this.generatedOtp = null;
         this.employeeId = null;
         this.employeeName = null;

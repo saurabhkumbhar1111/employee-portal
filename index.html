@@ -8,15 +8,17 @@
     <meta name="theme-color" content="#4a6da7">
     <meta name="description" content="Employee Portal for attendance and salary management">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/dental_lab.png">
+    <link rel="apple-touch-icon" href="icons/LDL_logo.png">
     <link rel="stylesheet" href="style.css" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Employee Portal">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/dental_lab.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icons/dental_lab.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="icons/dental_lab.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/LDL_logo.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/LDL_logo.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/LDL_logo.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
 
 </head>
 
@@ -54,6 +56,25 @@
                     </div>
                     <button id="verify-otp-btn">Verify OTP</button>
                 </div>
+            </div>
+<div>
+                <label class="heading-design">App Tutorial Links:</label>
+                <a href="https://labguruprodfilestore.blob.core.windows.net/ldepl/Hindi_Version.mp4" target="_blank"
+                    rel="noopener noreferrer">
+                    Hindi 
+                </a>
+                &nbsp; &nbsp;
+
+                <a href="https://labguruprodfilestore.blob.core.windows.net/ldepl/English_Version.mp4" target="_blank"
+                    rel="noopener noreferrer">
+                    English 
+                </a>
+                &nbsp; &nbsp;
+                <a href="https://labguruprodfilestore.blob.core.windows.net/ldepl/Marathi_Version.mp4" target="_blank"
+                    rel="noopener noreferrer">
+                    Marathi 
+                </a>
+            
             </div>
         </div>
 
@@ -116,10 +137,11 @@
                     <div class="section">
                         <div class="section-title">👤 Personal Information</div>
                         <div class="more-details">
-                            <p><strong>First Name:</strong> <span id="employee-first-name"></span></p>
+                            <p><strong>First Name (As per Aadhar Card):</strong> <span id="employee-first-name"></span></p>
                             <p><strong>Middle Name:</strong> <span id="employee-middle-name"></span></p>
-                            <p><strong>Last Name:</strong> <span id="employee-last-name"></span></p>
-                            <p><strong>Date of Birth:</strong> <span id="employee-dob"></span></p>
+                            <p><strong>Last Name (As per Aadhar Card):</strong> <span id="employee-last-name"></span></p>
+			    <p><strong>Father Name:</strong> <span id="employee-father-name"></span></p>
+                            <p><strong>Date of Birth (As per Aadhar Card):</strong> <span id="employee-dob"></span></p>
                             <p><strong>Gender:</strong> <span id="employee-gender"></span></p>
                             <p><strong>Religion:</strong> <span id="employee-religion"></span></p>
                             <p><strong>Marital Status:</strong> <span id="employee-marital-status"></span></p>
@@ -320,7 +342,7 @@
     <script>
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker
-                .register("service-worker.js");
+                .register("sw.js");	
                 // .then(() => console.log("✅ Service Worker Registered"))
                 // .catch(err => console.error("SW registration failed:", err));
         }
@@ -388,6 +410,40 @@
             }
         });
     </script>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-messaging-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDt4mOvMltx0V7Ujs98t8jHgvu8pyzNyH4",
+            authDomain: "empportal-c733f.firebaseapp.com",
+            projectId: "empportal-c733f",
+            storageBucket: "empportal-c733f.firebasestorage.app",
+            messagingSenderId: "702851978485",
+            appId: "1:702851978485:web:e360d3ef51cbeeb2e761bc",
+        };
+
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then((registration) => {
+        // console.log('✅ Service Worker Registered', registration);
+        const messaging = firebase.messaging();
+        messaging.getToken({
+          vapidKey: 'BLXIFrzowad4LYjYFWv8_JEnyGYPcQ7bXNvt6_Szy7HK8o22gcHOVbkvrr99qCIxpx9ijIQyZcS68GUBT0DlrCY',
+          serviceWorkerRegistration: registration
+        });
+
+      })
+      .catch((err) => console.error('SW registration failed:', err));
+  } else {
+     console.error('Service Workers not supported in this browser.');
+  }
+</script>
 </body>
 
 </html>

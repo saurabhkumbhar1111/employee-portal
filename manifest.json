@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icons/dental_lab.png",
+      "src": "icons/LDL_logo (1).png",
       "sizes": "160x160",
       "type": "image/png"
     },
     {
-      "src": "icons/dental_lab.png",
+      "src": "icons/LDL_logo (2).png",
       "sizes": "512x512",
       "type": "image/png"
     }

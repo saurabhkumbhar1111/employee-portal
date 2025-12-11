@@ -1,89 +1,56 @@
-const CACHE_NAME = 'employee-portal-v5';
-const DATA_CACHE_NAME = 'employee-portal-data-v5';
+// Force new versions so devices always update
+const SW_VERSION = "v100-" + Date.now();
+const FORCE_CLEAR_VERSION = "clear-cache-v1";
+// console.log("SW Loaded:", SW_VERSION, FORCE_CLEAR_VERSION);
 
-const urlsToCache = [
-  '/', 
-  '/index.html', 
-  '/style.css', 
-  '/app.js', 
-  '/auth.js', 
-  '/attendance.js', 
-  '/salary.js', 
-  '/manifest.json',
-  '/icons/dental_lab.png',
-  '/icons/dental_lab.png'
-];
+importScripts("https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.14.0/firebase-messaging-compat.js");
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    (async () => {
-      const cache = await caches.open(CACHE_NAME);
-      for (const url of urlsToCache) {
-        try {
-          const response = await fetch(url);
-          if (response.ok) await cache.put(url, response);
-        } catch (err) {
-        }
-      }
-      self.skipWaiting();
-    })()
-  );
+firebase.initializeApp({
+    apiKey: "AIzaSyDt4mOvMltx0V7Ujs98t8jHgvu8pyzNyH4",
+    authDomain: "empportal-c733f.firebaseapp.com",
+    projectId: "empportal-c733f",
+    storageBucket: "empportal-c733f.firebasestorage.app",
+    messagingSenderId: "702851978485",
+    appId: "1:702851978485:web:e360d3ef51cbeeb2e761bc",
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      )
-    )
-  );
-  self.clients.claim();
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+    self.registration.showNotification(payload.notification.title, {
+        body: payload.notification.body,
+        icon: "/icons/LDL_logo.png",
+    });
 });
 
-self.addEventListener('fetch', event => {
-  const { request } = event;
-  if (request.method !== 'GET') return;
+self.addEventListener("install", () => {
+    self.skipWaiting();
+});
 
- 
-  if (request.url.includes('/Attendance') || request.url.includes('/Payslip')) {
-    event.respondWith(
-      fetch(request)
-        .then(networkResponse => {
-          if (networkResponse.ok) {
-            const cloned = networkResponse.clone();
-            caches.open(DATA_CACHE_NAME).then(cache => cache.put(request, cloned));
-          }
-          return networkResponse;
-        })
-        .catch(async () => {
-          // Fallback to cache
-          const cachedResponse = await caches.match(request);
-          if (cachedResponse) return cachedResponse;
-          return new Response(JSON.stringify({ error: 'Offline data not available' }), {
-            headers: { 'Content-Type': 'application/json' }
-          });
-        })
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        (async () => {
+            // DELETE ALL OLD CACHES ON ALL DEVICES
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((name) => caches.delete(name)));
+
+            // console.log("All previous caches deleted");
+            await self.clients.claim();
+        })()
     );
-    return;
-  }
+});
 
+self.addEventListener("fetch", (event) => {
 
-  event.respondWith(
-    caches.match(request)
-      .then(cachedResponse => cachedResponse || fetch(request)
-        .then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            const cloned = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, cloned));
-          }
-          return networkResponse;
-        })
-        .catch(() => caches.match('/index.html'))
-      )
-  );
+    // Never cache sw.js
+    if (event.request.url.includes("sw.js")) {
+        event.respondWith(fetch(event.request, { cache: "no-store" }));
+        return;
+    }
+
+    // Always fetch latest files
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
 });

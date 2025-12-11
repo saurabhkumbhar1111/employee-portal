@@ -4,16 +4,18 @@ class SalaryManager {
         this.monthList = document.getElementById('month-list');
         this.salarySlip = document.getElementById('salary-slip');
 
-        this.apiUrl = "https://live.illusiondentallab.com/API_2020_Revised/api/ZohoPeople/Payslip";     
     }
-
+    
     init() {
         this.renderMonthList();
     }
-
+    
     async fetchSalaryData(employeeId) {
+        // this.apiUrl = "https://live.illusiondentallab.com/API_2020_Revised/api/ZohoPeople/Payslip";     
         try {
-            const response = await fetch(this.apiUrl, {
+            const API_URL = window.APP_CONFIG.API_BASE_URL;
+
+            const response = await fetch(`${API_URL}/api/ZohoPeople/Payslip`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ EmpID: employeeId })

@@ -38,7 +38,9 @@ class AttendanceCalendar {
         const endDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${new Date(year, month + 1, 0).getDate().toString().padStart(2, '0')}`;
 
         try {
-            const response = await fetch("https://live.illusiondentallab.com/API_2020_Revised/api/ZohoPeople/Attendance", {
+             const API_URL = window.APP_CONFIG.API_BASE_URL;
+
+            const response = await fetch(`${API_URL}/api/ZohoPeople/Attendance`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ StartDate: startDate, EndDate: endDate, EmpID: employeeId })
