@@ -61,6 +61,11 @@ class SalaryManager {
             return;
         }
 
+        slips.sort((a, b) => {
+            return new Date(Date.parse("01 " + b.Month)) - 
+                new Date(Date.parse("01 " + a.Month));
+        });
+
         slips.forEach(item => {
             const slipRow = document.createElement('div');
             slipRow.classList.add('slip-row');

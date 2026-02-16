@@ -231,12 +231,12 @@ class EmployeePortal {
     // PRESENT ADDRESS
     if (this.profilePresentAddressElem)
       this.profilePresentAddressElem.textContent =
-        `${employeePresentAddress}, ${employeePresentCity}, ${employeePresentState} - ${employeePresentPin}`;
+        `${employeePresentAddress}`;
 
     // PERMANENT ADDRESS
     if (this.profilePermanentAddressElem)
       this.profilePermanentAddressElem.textContent =
-        `${employeePermanentAddress}, ${employeePermanentCity}, ${employeePermanentState} - ${employeePermanentPin}`;
+        `${employeePermanentAddress}`;
 
     // WORK
     if (this.profileReportingManagerElem) this.profileReportingManagerElem.textContent = employeeReportingManager;
@@ -347,6 +347,54 @@ class EmployeePortal {
       this.showPage('login');
     }
   }
+
+  handleNotificationClick(data) {
+    // console.log('Handling notification inside app:', data);
+
+    if (!localStorage.getItem('isLoggedIn')) return;
+
+    // Navigate based on notification payload
+    if (data.page === 'attendance') {
+      this.loadAttendance(); // automatically shows the attendance page
+    } else {
+      this.showHome();
+    }
+
+    // Show in-app banner
+    this.showNotificationBanner(data);
+  }
+
+
+  openAttendanceFromNotification() {
+  this.showPage('attendance');
+  this.loadAttendance();
+}
+
+  showNotificationBanner(data) {
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4a6da7;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 99999;
+  `;
+
+  banner.innerText =
+    data?.type === 'attendance'
+      ? 'Attendance Alert: Please mark attendance'
+      : 'New notification received';
+
+  document.body.appendChild(banner);
+
+  setTimeout(() => banner.remove(), 5000);
+}
+
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -361,5 +409,22 @@ if ('serviceWorker' in navigator) {
     }
   });  
 }
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', function (event) {
+    if (event.data?.type === 'NOTIFICATION_CLICK') {
+      const data = event.data.data;
+
+      // console.log('Notification clicked:', data);
+
+      // ✅ Call EmployeePortal instance
+      if (window.employeePortal) {
+        window.employeePortal.handleNotificationClick(data);
+      }
+    }
+  });
+}
+
+
 
 

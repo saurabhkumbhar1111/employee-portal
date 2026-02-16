@@ -54,6 +54,36 @@ async function getFcmToken() {
     }
 }
 
+function getDeviceInfo() {
+  const ua = navigator.userAgent.toLowerCase();
+
+  let platform = "unknown";
+  let device = "unknown";
+
+  if (/android/.test(ua)) {
+    platform = "android";
+    device = "Android";
+  } else if (/iphone|ipad|ipod/.test(ua)) {
+    platform = "ios";
+    device = "iOS";
+  } else if (/windows/.test(ua)) {
+    platform = "browser";
+    device = "Windows";
+  } else if (/mac/.test(ua)) {
+    platform = "browser";
+    device = "Mac";
+  }
+
+  // Detect PWA
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    platform = "pwa";
+    device += " (PWA)";
+  }
+
+  return { platform, device };
+}
+
+
 class AuthManager {
     constructor() {
         this.generatedOtp = null;
@@ -271,7 +301,7 @@ class AuthManager {
                 localStorage.setItem("employeeFirstName", this.employeeFirstName);
                 localStorage.setItem("employeeMiddleName", this.employeeMiddleName);
                 localStorage.setItem("employeeLastName", this.employeeLastName);
-	        localStorage.setItem("employeeFatherName", this.employeeFatherName);
+	            localStorage.setItem("employeeFatherName", this.employeeFatherName);
 
                 localStorage.setItem("employeeDOB", this.employeeDOB);
                 localStorage.setItem("employeeReligion", this.employeeReligion);
@@ -311,6 +341,7 @@ class AuthManager {
             getFcmToken().then(async (token) => {
 
                 const API_URL = window.APP_CONFIG.API_BASE_URL;
+                const deviceInfo = getDeviceInfo();
 
                 // Call PostLoginActivity ONLY if OTP is correct
                 await fetch(`${API_URL}/api/ZohoPeople/PostLoginActivity`, {
@@ -319,7 +350,9 @@ class AuthManager {
                     body: JSON.stringify({
                         EmpID: this.employeeId,
                         LoginStatus: "Login",
-                        Token: token || null
+                        Token: token || null,
+                        LoginPlatform: deviceInfo.platform,   
+                        LoginDevice: deviceInfo.device
                     })
                 });
 
@@ -384,6 +417,24 @@ class AuthManager {
         }
     }
 }
+
+function redirectToUpdateForm() {
+  const empCode = localStorage.getItem("employeeId");
+
+  if (!empCode) {
+    alert("Employee code not found. Please login again.");
+    return;
+  }
+
+  const baseUrl =
+    "https://forms.zohopublic.in/laxmigroup1/form/dfgdfg/formperma/zipZyemkN4aivmyGEvcRwQ2zN8W9xpI4W7gDfhbLUvI";
+
+  const finalUrl = `${baseUrl}?code=${encodeURIComponent(empCode)}`;
+
+  // Redirect
+  window.location.href = finalUrl;
+}
+
 
 // Utility function for showing toast
 function showToast(message, color = "#4caf50") {

@@ -211,6 +211,13 @@
 
                     <!-- ACTION BUTTONS -->
                     <div class="profile-actions">
+                        <label class="profile-label">Click below to update the above information if any:</label>
+
+                        <div class="ack-row">                            
+                           <button class="btn-ack-update" onclick="redirectToUpdateForm()">
+                                <span class="ack-text1">✎ Update</span>
+                            </button>
+                        </div>
 
                         <label class="profile-label">Is the above information correct?</label>
 
@@ -318,7 +325,7 @@
     <script src="attendance.js"></script>
     <script src="salary.js"></script>
     <script src="app.js"></script>
-    <script src="tour.js"></script>
+    <!-- <script src="tour.js"></script> -->
     <script src="config.js"></script>
 
     <button id="installAppBtn" style="
@@ -443,6 +450,13 @@
   } else {
      console.error('Service Workers not supported in this browser.');
   }
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+}
 </script>
 </body>
 

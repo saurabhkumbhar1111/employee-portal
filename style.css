@@ -573,13 +573,45 @@ body.sidebar-open .menu-toggle{
     color: black;
 }
 
-.btn-ack,
+.btn-ack,.btn-ack-update,
 .btn-ack-wrong {
     padding: 8px 14px;
     border: none;
     border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
+}
+.btn-ack-update {
+    background-color: #0b6f79; /* dark base */
+    color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    animation: colorShift 0.5s ease-in-out infinite;
+    transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+/* Smooth light ↔ dark color change */
+@keyframes colorShift {
+    0% {
+        background-color: #0b6f79;
+    }
+    50% {
+        background-color: #7ad4dc; /* slightly lighter */
+    }
+    100% {
+        background-color: #0b6f79;
+    }
+}
+
+/* Hover stays strong & stable */
+.btn-ack-update:hover {
+    animation: none; /* stop pulse on hover */
+    background-color: #085a62;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* GREEN */
@@ -591,6 +623,14 @@ body.sidebar-open .menu-toggle{
 /* YELLOW */
 .btn-ack-wrong {
     background-color: #ffc107;
+    color: black;
+}
+
+.ack-text1 {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 6px;
     color: black;
 }
 
