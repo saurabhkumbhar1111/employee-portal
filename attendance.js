@@ -1,14 +1,20 @@
 class AttendanceCalendar {
-    constructor() {
-        this.currentMonthElement = document.getElementById('current-month');
-        this.calendarBody = document.getElementById('calendar-body');
-        this.prevMonthBtn = document.getElementById('prev-month-btn');
-        this.nextMonthBtn = document.getElementById('next-month-btn');
-
+    constructor(isTeam = false ) {
+        this.isTeam = isTeam;
+        if (this.isTeam) {
+            this.currentMonthElement = document.getElementById("team-current-month");
+            this.calendarBody = document.getElementById("team-calendar-body");
+        } else {
+            this.currentMonthElement = document.getElementById("current-month");
+            this.calendarBody = document.getElementById("calendar-body");
+        }
+        this.prevMonthBtn = document.getElementById(isTeam ? "team-prev-month-btn" : "prev-month-btn");
+        this.nextMonthBtn = document.getElementById(isTeam ? "team-next-month-btn" : "next-month-btn");
+        this.employeeId = null;
         this.currentDate = new Date();
         this.attendanceData = {};
-        this.minDate = new Date(2025, 8, 1); // September 2025
-
+        this.minDate = new Date(2025, 8, 1);
+        this.teamAttendanceData = {};
         this.init();
     }
 
@@ -23,13 +29,19 @@ class AttendanceCalendar {
     }
 
     getEmployeeId() {
-        let employeeId = window.authManager?.getCurrentEmployee?.() || localStorage.getItem("employeeId");
-        if (employeeId) localStorage.setItem("employeeId", employeeId);
-        return employeeId;
+        if (this.employeeId) return this.employeeId;
+        return window.authManager?.getCurrentEmployee?.() || localStorage.getItem("employeeId");
     }
 
-    async fetchAttendance() {
-        const employeeId = this.getEmployeeId();
+    async fetchAttendance(empId = null, isTeamView = false) {
+        let employeeId;
+
+        if (this.isTeam) {
+            employeeId = empId || this.employeeId;
+        } else {
+            employeeId = this.getEmployeeId();
+        }
+
         if (!employeeId) return null;
 
         const year = this.currentDate.getFullYear();
@@ -38,31 +50,59 @@ class AttendanceCalendar {
         const endDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${new Date(year, month + 1, 0).getDate().toString().padStart(2, '0')}`;
 
         try {
-             const API_URL = window.APP_CONFIG.API_BASE_URL;
+            const API_URL = window.APP_CONFIG.API_BASE_URL;
 
             const response = await fetch(`${API_URL}/api/ZohoPeople/Attendance`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ StartDate: startDate, EndDate: endDate, EmpID: employeeId })
+                body: JSON.stringify({
+                    StartDate: startDate,
+                    EndDate: endDate,
+                    EmpID: employeeId
+                })
             });
 
             if (!response.ok) throw new Error("Network response was not ok");
-            const result = await response.json();
 
+            const result = await response.json();
             if (!result || !result.data) return null;
 
-            this.attendanceData = {};
+            const formattedAttendance = {};
             result.data.forEach(item => {
                 let normalizedDate = this.normalizeDate(item.Date);
-                this.attendanceData[normalizedDate] = item;
+                formattedAttendance[normalizedDate] = item;
             });
 
-            localStorage.setItem(`attendance-${year}-${month + 1}`, JSON.stringify(this.attendanceData));
+            console.log("Formatted Attendance:", formattedAttendance);
+            
+            const storageKey = isTeamView
+                ? `team-attendance-${employeeId}-${year}-${month + 1}`
+                : `attendance-${year}-${month + 1}`;
+
+            localStorage.setItem(storageKey, JSON.stringify(formattedAttendance));
+            
+            if (isTeamView) {
+                this.teamAttendanceData = formattedAttendance;
+            } else {
+                this.attendanceData = formattedAttendance;
+            }
+
             return true;
+
         } catch (error) {
-            const cached = localStorage.getItem(`attendance-${year}-${month + 1}`);
+
+            const storageKey = isTeamView
+                ? `team-attendance-${employeeId}-${year}-${month + 1}`
+                : `attendance-${year}-${month + 1}`;
+
+            const cached = localStorage.getItem(storageKey);
+
             if (cached) {
-                this.attendanceData = JSON.parse(cached);
+                if (isTeamView) {
+                    this.teamAttendanceData = JSON.parse(cached);
+                } else {
+                    this.attendanceData = JSON.parse(cached);
+                }
                 return true;
             } else {
                 alert("Cannot fetch attendance. Check your internet connection.");
@@ -72,18 +112,19 @@ class AttendanceCalendar {
     }
 
     normalizeDate(dateStr) {
-        if (!dateStr.includes('-')) return dateStr;
-        const parts = dateStr.split('-');
-        if (parts[1].length === 3) {
-            const months = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
-            return `${parts[2]}-${months[parts[1]]}-${parts[0].padStart(2, '0')}`;
-        }
-        return dateStr;
+        const d = new Date(dateStr);
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     async renderCalendar(date) {
         this.showAttendanceLoader();
-        const success = await this.fetchAttendance();
+        const success = await this.fetchAttendance(
+            this.isTeam ? this.employeeId : null,
+            this.isTeam
+        );
         if (!success) {
             this.hideAttendanceLoader();
             return;
@@ -134,8 +175,9 @@ class AttendanceCalendar {
                 if ((i === 0 && j < startingDay) || dateCounter > daysInMonth) {
                     cell.innerHTML = '';
                 } else {
-                    const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateCounter.toString().padStart(2, '0')}`;
-                    const attendance = this.attendanceData[dateStr];
+                    const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${dateCounter.toString().padStart(2, '0')}`;                
+                    const dataSource = this.isTeam ? this.teamAttendanceData : this.attendanceData;
+                    const attendance = dataSource ? dataSource[dateStr] : null;
                     const currentDay = new Date(year, month, dateCounter);
 
                     const dateDiv = document.createElement('div');
@@ -227,15 +269,16 @@ class AttendanceCalendar {
             (year === today.getFullYear() && month >= today.getMonth());
 
             // Popup close logic
-            document.getElementById("popup-close").addEventListener("click", () => {
-            document.getElementById("attendance-popup").style.display = "none";
-            });
-            window.addEventListener("click", (e) => {
-            if (e.target.id === "attendance-popup")
+            if (!this.popupListenerBound) {
+            document.getElementById("popup-close")?.addEventListener("click", () => {
                 document.getElementById("attendance-popup").style.display = "none";
             });
-
-
+            window.addEventListener("click", (e) => {
+                if (e.target.id === "attendance-popup")
+                    document.getElementById("attendance-popup").style.display = "none";
+            });
+            this.popupListenerBound = true;
+        }
         this.hideAttendanceLoader();
     }
 
@@ -300,7 +343,5 @@ class AttendanceCalendar {
     hideAttendanceLoader() {
         const loader = document.getElementById('attendance-loader');
         if (loader) loader.style.display = 'none';
-    }
-
-    
+    }  
 }

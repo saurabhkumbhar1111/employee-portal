@@ -3,8 +3,9 @@ class EmployeePortal {
     // Elements
     this.sidebar = document.getElementById('sidebar');
     this.sidebarOverlay = document.getElementById('sidebar-overlay');
-    this.menuToggle = document.getElementById('menu-toggle'); // hamburger button
+    this.menuToggle = document.getElementById('menu-toggle');
     this.topLogoutBtn = document.getElementById('top-logout-btn');
+    this.teamMenu = document.getElementById("menu-team-attendance");
 
     this.menuHome = document.getElementById('menu-home');
     this.menuProfile = document.getElementById('menu-profile');
@@ -17,6 +18,7 @@ class EmployeePortal {
       menu: document.getElementById('menu-page'),
       attendance: document.getElementById('attendance-page'),
       salary: document.getElementById('salary-page'),
+      teamAttendance: document.getElementById('team-attendance-page')
     };
 
     // Profile + Sidebar elements
@@ -71,8 +73,165 @@ class EmployeePortal {
     this.loader = document.getElementById('attendance-loader');
 
     this.bindEvents();
+    this.initializeTeamDropdown();
     this.init();
   }
+
+  updateManagerMenu() {
+    const isManager = localStorage.getItem("isManager") === "true";
+    const teamMenu = document.getElementById("menu-team-attendance");
+
+    if (teamMenu) {
+      teamMenu.style.display = isManager ? "block" : "none";
+    }
+  }
+
+
+  async loadTeamMembers() {
+    try {
+      const API_URL = window.APP_CONFIG.API_BASE_URL;
+
+      // Get the current logged-in manager's EmpID
+      const managerId = localStorage.getItem("employeeId");
+      if (!managerId) {
+        console.error("Manager ID not found. Please login first.");
+        return;
+      }
+
+      // Fetch team members
+      const response = await fetch(`${API_URL}/api/ZohoPeople/GetTeamMembers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ EmpID: managerId }) // send manager ID
+      });
+
+      const result = await response.json();
+
+      console.log("Team Members API Response:", result);
+      const employees = result?.data?.Data;
+      if (!employees || !Array.isArray(employees)) return;
+
+      const customDropdown = document.getElementById("teamCustomDropdown");
+const selectedText = document.getElementById("teamSelectedText");
+const optionsContainer = document.getElementById("teamDropdownOptions");
+const searchInput = document.getElementById("teamEmployeeSearch");
+
+let employeeList = employees; // store full list
+
+function renderOptions(list) {
+    optionsContainer.innerHTML = "";
+
+    list.forEach(emp => {
+        const div = document.createElement("div");
+        div.className = "dropdown-option";
+        div.textContent = `${emp.FullName} (${emp.EmployeeCode})`;
+
+        div.addEventListener("click", async () => {
+
+            selectedText.textContent =
+                `${emp.FullName} (${emp.EmployeeCode})`;
+
+            customDropdown.classList.remove("open");
+
+            // Show calendar
+            document.getElementById("team-empty-state").style.display = "none";
+            document.getElementById("team-calendar-section").style.display = "block";
+
+            window.teamAttendanceCalendar.employeeId = emp.EmployeeCode;
+
+            await window.teamAttendanceCalendar.renderCalendar(
+                window.teamAttendanceCalendar.currentDate
+            );
+        });
+
+        optionsContainer.appendChild(div);
+    });
+}
+
+// Initial render
+renderOptions(employeeList);
+
+// Search
+searchInput.addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+
+    const filtered = employeeList.filter(emp =>
+        emp.FullName.toLowerCase().includes(value) ||
+        emp.EmployeeCode.toString().includes(value)
+    );
+
+    renderOptions(filtered);
+});
+
+
+    } catch (error) {
+      console.error("Error loading team members:", error);
+    }
+  }
+
+ 
+ resetTeamAttendance() {
+
+  const selectedText = document.getElementById("teamSelectedText");
+  const searchInput = document.getElementById("teamEmployeeSearch");
+  const customDropdown = document.getElementById("teamCustomDropdown");
+  const optionsContainer = document.getElementById("teamDropdownOptions");
+  const calendarSection = document.getElementById("team-calendar-section");
+  const emptyState = document.getElementById("team-empty-state");
+  const calendarBody = document.getElementById("team-calendar-body");
+  const monthTitle = document.getElementById("team-current-month");
+
+  // Reset dropdown text
+  if (selectedText) selectedText.textContent = "-- Select Employee --";
+
+  // Clear search
+  if (searchInput) searchInput.value = "";
+
+  // Close dropdown
+  if (customDropdown) customDropdown.classList.remove("open");
+
+  // Clear dropdown options
+  if (optionsContainer) optionsContainer.innerHTML = "";
+
+  // Hide calendar
+  if (calendarSection) calendarSection.style.display = "none";
+
+  // Show empty state
+  if (emptyState) emptyState.style.display = "block";
+
+  // Clear calendar UI
+  if (calendarBody) calendarBody.innerHTML = "";
+  if (monthTitle) monthTitle.textContent = "";
+
+  // Reset employee selection
+  if (window.teamAttendanceCalendar) {
+    window.teamAttendanceCalendar.employeeId = null;
+  }
+
+  console.log("Team attendance fully reset");
+}
+
+initializeTeamDropdown() {
+
+  const customDropdown = document.getElementById("teamCustomDropdown");
+  const searchInput = document.getElementById("teamEmployeeSearch");
+
+  if (!customDropdown) return;
+
+  // Toggle dropdown
+  customDropdown.querySelector(".dropdown-selected")
+    ?.addEventListener("click", () => {
+      customDropdown.classList.toggle("open");
+      searchInput?.focus();
+    });
+
+  // Close outside
+  document.addEventListener("click", (e) => {
+    if (!customDropdown.contains(e.target)) {
+      customDropdown.classList.remove("open");
+    }
+  });
+}
 
   bindEvents() {
     // open sidebar
@@ -102,7 +261,16 @@ class EmployeePortal {
       this.loadSalary();
     });
 
-    // logout actions
+    this.teamMenu?.addEventListener("click", () => {
+      this.closeSidebar();
+      this.showPage("teamAttendance");
+      // this.setupTeamAttendanceUI();
+      if (!window.teamAttendanceCalendar) {
+        window.teamAttendanceCalendar = new AttendanceCalendar(true);
+      }
+      this.loadTeamMembers();
+    });
+    
     this.menuLogout?.addEventListener('click', () => this.logout());
     this.topLogoutBtn?.addEventListener('click', () => this.logout());
     document.getElementById('attendance-logout-btn')?.addEventListener('click', () => this.logout());
@@ -123,6 +291,7 @@ class EmployeePortal {
   init() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     if (isLoggedIn) {
+      this.updateManagerMenu();
       this.loadEmployeeDetails();
       this.showPage('menu');
       this.showHome();
@@ -137,7 +306,7 @@ class EmployeePortal {
     this.sidebarOverlay?.classList.add('active');
     this.sidebarOverlay?.setAttribute('aria-hidden', 'false');
     document.body.classList.add('sidebar-open');
-    this.menuToggle.style.display = "none"; 
+    this.menuToggle.style.display = "none";
   }
 
   closeSidebar() {
@@ -146,7 +315,7 @@ class EmployeePortal {
     this.sidebarOverlay?.classList.remove('active');
     this.sidebarOverlay?.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('sidebar-open');
-    this.menuToggle.style.display = "block"; 
+    this.menuToggle.style.display = "block";
   }
 
   loadEmployeeDetails() {
@@ -207,7 +376,7 @@ class EmployeePortal {
     if (this.profileFirstNameElem) this.profileFirstNameElem.textContent = employeeFirstName;
     if (this.profileMiddleNameElem) this.profileMiddleNameElem.textContent = employeeMiddleName;
     if (this.profileLastNameElem) this.profileLastNameElem.textContent = employeeLastName;
-    if (this.profileFatherNameElem) this.profileFatherNameElem.textContent = employeeFatherName;  
+    if (this.profileFatherNameElem) this.profileFatherNameElem.textContent = employeeFatherName;
     if (this.profilePresentCityElem) this.profilePresentCityElem.textContent = employeePresentCity;
     if (this.profilePresentStateElem) this.profilePresentStateElem.textContent = employeePresentState;
     if (this.profilePresentPinCodeElem) this.profilePresentPinCodeElem.textContent = employeePresentPin;
@@ -268,14 +437,23 @@ class EmployeePortal {
 
 
   showPage(pageName) {
+    if (this.currentPage === "teamAttendance") {
+      this.resetTeamAttendance();
+    }
     Object.values(this.pages).forEach(p => p?.classList.remove('active'));
+    if (pageName === "teamAttendance") {
+      const isManager = localStorage.getItem("isManager") === "true";
+      if (!isManager) {
+        alert("Unauthorized Access");
+        this.pages["menu"]?.classList.add("active");
+        this.showHome();
+        return;
+      }
+    }
+
     this.pages[pageName]?.classList.add('active');
     this.closeSidebar();
-
-    // 🔄 Re-render attendance if user navigates back
-    if (pageName === "attendance" && window.attendanceCalendar) {
-      window.attendanceCalendar.renderCalendar(window.attendanceCalendar.currentDate);
-    }
+    this.currentPage = pageName;
   }
 
   showAttendanceLoader() {
@@ -344,6 +522,7 @@ class EmployeePortal {
       localStorage.removeItem('employeeName');
       localStorage.removeItem('employeePhone');
       localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('isManager');
       this.showPage('login');
     }
   }
@@ -366,13 +545,13 @@ class EmployeePortal {
 
 
   openAttendanceFromNotification() {
-  this.showPage('attendance');
-  this.loadAttendance();
-}
+    this.showPage('attendance');
+    this.loadAttendance();
+  }
 
   showNotificationBanner(data) {
-  const banner = document.createElement('div');
-  banner.style.cssText = `
+    const banner = document.createElement('div');
+    banner.style.cssText = `
     position: fixed;
     top: 10px;
     left: 50%;
@@ -384,15 +563,15 @@ class EmployeePortal {
     z-index: 99999;
   `;
 
-  banner.innerText =
-    data?.type === 'attendance'
-      ? 'Attendance Alert: Please mark attendance'
-      : 'New notification received';
+    banner.innerText =
+      data?.type === 'attendance'
+        ? 'Attendance Alert: Please mark attendance'
+        : 'New notification received';
 
-  document.body.appendChild(banner);
+    document.body.appendChild(banner);
 
-  setTimeout(() => banner.remove(), 5000);
-}
+    setTimeout(() => banner.remove(), 5000);
+  }
 
 
 }
@@ -407,7 +586,7 @@ if ('serviceWorker' in navigator) {
     for (let reg of regs) {
       reg.update(); // Force re-check for new version
     }
-  });  
+  });
 }
 
 if ('serviceWorker' in navigator) {
@@ -424,7 +603,3 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
-
-
-
-

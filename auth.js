@@ -282,7 +282,7 @@ class AuthManager {
 }
 
 
-    verifyOtp() {
+    async verifyOtp() {
         const enteredOtp = (document.getElementById("otp")?.value || "").trim();
         const otpError = document.getElementById("otp-error");
 
@@ -335,37 +335,64 @@ class AuthManager {
                 localStorage.setItem("employeeAadhar", this.employeeAadhar);
 
                 localStorage.setItem("employeeMedicalHistory", this.employeeMedicalHistory);
-		localStorage.setItem("isLoggedIn", "true");
+		        localStorage.setItem("isLoggedIn", "true");
+                // localStorage.setItem("isManager", "true");
+
 
 	// Generate Firebase Push Notification Token
-            getFcmToken().then(async (token) => {
+            (async () => {
 
                 const API_URL = window.APP_CONFIG.API_BASE_URL;
                 const deviceInfo = getDeviceInfo();
 
-                // Call PostLoginActivity ONLY if OTP is correct
-                await fetch(`${API_URL}/api/ZohoPeople/PostLoginActivity`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        EmpID: this.employeeId,
-                        LoginStatus: "Login",
-                        Token: token || null,
-                        LoginPlatform: deviceInfo.platform,   
-                        LoginDevice: deviceInfo.device
-                    })
-                });
+                try {
+                    const token = await getFcmToken();
 
-            });
+                    const loginResponse = await fetch(`${API_URL}/api/ZohoPeople/PostLoginActivity`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            EmpID: this.employeeId,
+                            LoginStatus: "Login",
+                            Token: token || null,
+                            LoginPlatform: deviceInfo.platform,
+                            LoginDevice: deviceInfo.device
+                        })
+                    });
+
+                    let isManager = false;
+                    if (loginResponse.ok) {
+                        const text = await loginResponse.text();
+                        if (text) {
+                            const loginData = JSON.parse(text);
+                            console.log("LoginData:", loginData);
+                            if (loginData?.data?.IsManager === true) {
+                                isManager = true;
+                            }
+                        }
+                    }
+
+                    localStorage.setItem("isManager", isManager ? "true" : "false");
 
 
+                } catch (error) {
+                    console.error("Login activity error:", error);
+                    localStorage.setItem("isManager", "false");
+                }
 
-            // Update UI in EmployeePortal
+                if (window.employeePortal) {
+                    window.employeePortal.updateManagerMenu();
+                    window.employeePortal.loadEmployeeDetails();
+                    window.employeePortal.showPage("menu");
+                }
+
+            })();
+
+
             if (window.employeePortal && typeof window.employeePortal.loadEmployeeDetails === "function") {
                 window.employeePortal.loadEmployeeDetails();
                 window.employeePortal.showPage("menu");
             } else {
-                // fallback: navigate to menu page
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById('menu-page').classList.add('active');
             }
@@ -407,6 +434,7 @@ class AuthManager {
         localStorage.removeItem("employeeId");
         localStorage.removeItem("employeeName");
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("isManager");
 
         // Show login page
         if (window.employeePortal && typeof window.employeePortal.showPage === 'function') {

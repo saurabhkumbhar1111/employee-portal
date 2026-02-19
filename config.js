@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-    API_BASE_URL: "https://uat.illusiondentallab.com/API_2020"
+    API_BASE_URL: "https://localhost:44354"
 };
 
 //URL for API
