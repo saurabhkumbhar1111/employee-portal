@@ -480,7 +480,6 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
                 .then((registration) => {
-                    // console.log('✅ Service Worker Registered', registration);
                     const messaging = firebase.messaging();
                     messaging.getToken({
                         vapidKey: 'BLXIFrzowad4LYjYFWv8_JEnyGYPcQ7bXNvt6_Szy7HK8o22gcHOVbkvrr99qCIxpx9ijIQyZcS68GUBT0DlrCY',

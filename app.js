@@ -94,7 +94,6 @@ class EmployeePortal {
       // Get the current logged-in manager's EmpID
       const managerId = localStorage.getItem("employeeId");
       if (!managerId) {
-        console.error("Manager ID not found. Please login first.");
         return;
       }
 
@@ -107,7 +106,6 @@ class EmployeePortal {
 
       const result = await response.json();
 
-      console.log("Team Members API Response:", result);
       const employees = result?.data?.Data;
       if (!employees || !Array.isArray(employees)) return;
 
@@ -165,7 +163,6 @@ searchInput.addEventListener("input", function () {
 
 
     } catch (error) {
-      console.error("Error loading team members:", error);
     }
   }
 
@@ -208,7 +205,6 @@ searchInput.addEventListener("input", function () {
     window.teamAttendanceCalendar.employeeId = null;
   }
 
-  console.log("Team attendance fully reset");
 }
 
 initializeTeamDropdown() {
@@ -528,11 +524,8 @@ initializeTeamDropdown() {
   }
 
   handleNotificationClick(data) {
-    // console.log('Handling notification inside app:', data);
 
     if (!localStorage.getItem('isLoggedIn')) return;
-
-    // Navigate based on notification payload
     if (data.page === 'attendance') {
       this.loadAttendance(); // automatically shows the attendance page
     } else {
@@ -593,9 +586,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', function (event) {
     if (event.data?.type === 'NOTIFICATION_CLICK') {
       const data = event.data.data;
-
-      // console.log('Notification clicked:', data);
-
       // ✅ Call EmployeePortal instance
       if (window.employeePortal) {
         window.employeePortal.handleNotificationClick(data);

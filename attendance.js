@@ -71,10 +71,7 @@ class AttendanceCalendar {
             result.data.forEach(item => {
                 let normalizedDate = this.normalizeDate(item.Date);
                 formattedAttendance[normalizedDate] = item;
-            });
-
-            console.log("Formatted Attendance:", formattedAttendance);
-            
+            });            
             const storageKey = isTeamView
                 ? `team-attendance-${employeeId}-${year}-${month + 1}`
                 : `attendance-${year}-${month + 1}`;

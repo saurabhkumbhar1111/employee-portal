@@ -36,7 +36,6 @@ async function getFcmToken() {
 
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
-            // console.warn("Notifications permission denied");
             return null;
         }
 
@@ -45,11 +44,9 @@ async function getFcmToken() {
             serviceWorkerRegistration: registration
         });
 
-        // console.log("FCM Token Generated:", token);
         return token;
 
     } catch (err) {
-        // console.error("FCM Token Error:", err);
         return null;
     }
 }
@@ -365,7 +362,6 @@ class AuthManager {
                         const text = await loginResponse.text();
                         if (text) {
                             const loginData = JSON.parse(text);
-                            console.log("LoginData:", loginData);
                             if (loginData?.data?.IsManager === true) {
                                 isManager = true;
                             }
@@ -376,7 +372,6 @@ class AuthManager {
 
 
                 } catch (error) {
-                    console.error("Login activity error:", error);
                     localStorage.setItem("isManager", "false");
                 }
 
@@ -506,7 +501,6 @@ function showToast(message, color = "#4caf50") {
         alert("Error submitting response.");
       }
     } catch (err) {
-      console.error(err);
       alert("Network error!");
     }
   }

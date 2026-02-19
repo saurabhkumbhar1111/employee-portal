@@ -1,7 +1,6 @@
 // Force new versions so devices always update
 const SW_VERSION = "v100-" + Date.now();
 const FORCE_CLEAR_VERSION = "clear-cache-v1";
-// console.log("SW Loaded:", SW_VERSION, FORCE_CLEAR_VERSION);
 
 importScripts("https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.14.0/firebase-messaging-compat.js");
